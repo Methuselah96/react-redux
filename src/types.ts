@@ -1,4 +1,4 @@
-import { ClassAttributes, ComponentClass, ComponentType } from 'react'
+import { ClassAttributes, ComponentClass, JSXElementConstructor } from 'react'
 
 import { Action, AnyAction, Dispatch } from 'redux'
 
@@ -10,8 +10,6 @@ export type FixTypeLater = any
 
 export type EqualityFn<T> = (a: T, b: T) => boolean
 
-export type AnyIfEmpty<T extends object> = keyof T extends never ? any : T
-
 export type DistributiveOmit<T, K extends keyof T> = T extends unknown
   ? Omit<T, K>
   : never
@@ -21,8 +19,8 @@ export interface DispatchProp<A extends Action = AnyAction> {
 }
 
 export type AdvancedComponentDecorator<TProps, TOwnProps> = (
-  component: ComponentType<TProps>
-) => ComponentType<TOwnProps>
+  component: JSXElementConstructor<TProps>
+) => JSXElementConstructor<TOwnProps>
 
 /**
  * A property P will be present if:
@@ -64,7 +62,7 @@ export type Shared<InjectedProps, DecorationTargetProps> = {
 }
 
 // Infers prop type from component C
-export type GetProps<C> = C extends ComponentType<infer P>
+export type GetProps<C> = C extends JSXElementConstructor<infer P>
   ? C extends ComponentClass<P>
     ? ClassAttributes<InstanceType<C>> & P
     : P
@@ -80,9 +78,9 @@ export type GetLibraryManagedProps<C> = JSX.LibraryManagedAttributes<
 // Applies LibraryManagedAttributes (proper handling of defaultProps
 // and propTypes), as well as defines WrappedComponent.
 export type ConnectedComponent<
-  C extends ComponentType<any>,
+  C extends JSXElementConstructor<any>,
   P
-> = ComponentType<P> &
+> = JSXElementConstructor<P> &
   NonReactStatics<C> & {
     WrappedComponent: C
   }
@@ -92,7 +90,7 @@ export type ConnectedComponent<
 // render. Also adds new prop requirements from TNeedsProps.
 // Uses distributive omit to preserve discriminated unions part of original prop type
 export type InferableComponentEnhancerWithProps<TInjectedProps, TNeedsProps> = <
-  C extends ComponentType<Matching<TInjectedProps, GetProps<C>>>
+  C extends JSXElementConstructor<Matching<TInjectedProps, GetProps<C>>>
 >(
   component: C
 ) => ConnectedComponent<
